@@ -4,22 +4,18 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Resources
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.drawable.Drawable
 import android.location.Geocoder
 import android.location.Location
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import com.example.easywaylocation.EasyWayLocation
+import com.example.easywaylocation.EasyWayLocation.LOCATION_SETTING_REQUEST_CODE
 import com.example.easywaylocation.Listener
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.LocationRequest
@@ -28,7 +24,12 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.*
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.model.RectangularBounds
@@ -49,11 +50,13 @@ import com.optic.racsaapp.providers.GeoProvider
 import com.optic.racsaapp.utils.CarMoveAnim
 import org.imperiumlabs.geofirestore.callbacks.GeoQueryEventListener
 
+
 class MapActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
 
     private lateinit var binding: ActivityMapBinding
     private var googleMap: GoogleMap? = null
     private var easyWayLocation: EasyWayLocation? = null
+
     private var myLocationLatLng: LatLng? = null
     private val geoProvider = GeoProvider()
     private val authProvider = AuthProvider()
@@ -85,6 +88,10 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
+        startGooglePlaces()
+        removeBooking()
+        createToken()
+
         val locationRequest = LocationRequest.create().apply {
             interval = 0
             fastestInterval = 0
@@ -93,15 +100,10 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
         }
 
         easyWayLocation = EasyWayLocation(this, locationRequest, false, false, this)
+      //  easyWayLocation = EasyWayLocation(this, false, false, this)
 
-        locationPermissions.launch(arrayOf(
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        ))
 
-        startGooglePlaces()
-        removeBooking()
-        createToken()
+
 
         binding.btnRequestTrip.setOnClickListener { goToTripInfo() }
         binding.imageViewMenu.setOnClickListener { showModalMenu() }
@@ -113,12 +115,12 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
             when {
                 permission.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) -> {
                     Log.d("LOCALIZACION", "Permiso concedido")
-                    easyWayLocation?.startLocation()
+                    easyWayLocation?.startLocation()!!
 
                 }
                 permission.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
                     Log.d("LOCALIZACION", "Permiso concedido con limitacion")
-                    easyWayLocation?.startLocation()
+                    easyWayLocation?.startLocation()!!
 
                 }
                 else -> {
@@ -362,6 +364,10 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
 
     override fun onResume() {
         super.onResume() // ABRIMOS LA PANTALLA ACTUAL
+        locationPermissions.launch(arrayOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ))
     }
 
     override fun onDestroy() { // CIERRA APLICACION O PASAMOS A OTRA ACTIVITY
@@ -403,8 +409,10 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, Listener {
     }
 
     override fun locationOn() {
-
+        Toast.makeText(this, "Location ON", Toast.LENGTH_SHORT).show();
     }
+
+
 
     override fun currentLocation(location: Location) { // ACTUALIZACION DE LA POSICION EN TIEMPO REAL
         myLocationLatLng = LatLng(location.latitude, location.longitude) // LAT Y LONG DE LA POSICION ACTUAL
