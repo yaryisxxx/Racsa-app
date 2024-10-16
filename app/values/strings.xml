@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Racsa App v1</string>
+    <string name="google_maps_key">AIzaSyC9x6Oh-QZTBps2x7u-tm_fjH1dKqXb9bk</string>
+    <string name="default_notification_channel_id">fcm_default_channel</string>
+</resources>

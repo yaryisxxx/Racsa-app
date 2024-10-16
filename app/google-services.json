@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "369218248113",
+    "project_id": "racsatransportev1",
+    "storage_bucket": "racsatransportev1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:369218248113:android:4497273c6a892952acb190",
+        "android_client_info": {
+          "package_name": "com.optic.racsaapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD1QY8RPXjUwSPrGZqyJ3MpZRTHGK8qoJI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
